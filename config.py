@@ -10,7 +10,7 @@ ORIGIN_LABEL = "Partenza"
 DESTINATION_LABEL = "Arrivo"
 
 # File di output
-CSV_PATH = "data/traffic_log_mattina.csv"
+CSV_PATH = "data/traffic_log.csv"
 
 # TomTom Routing API
 TOMTOM_ROUTING_URL = (
