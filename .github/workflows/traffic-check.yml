@@ -1,0 +1,45 @@
+name: Traffic Check
+
+on:
+  schedule:
+    # --- ORA SOLARE (CET, UTC+1) — valida da fine ottobre a fine marzo ---
+    # 6:45, 7:00, 7:15, 7:30, 7:45, 8:00, 8:15, 8:30 CET -> UTC -1h
+    - cron: '45 5 * * 1-5'
+    - cron: '0,15,30,45 6 * * 1-5'
+    - cron: '0,15,30 7 * * 1-5'
+
+    # --- ORA LEGALE (CEST, UTC+2) — valida da fine marzo a fine ottobre ---
+    # stessi orari locali, ma -2h in UTC
+    - cron: '45 4 * * 1-5'
+    - cron: '0,15,30,45 5 * * 1-5'
+    - cron: '0,15,30 6 * * 1-5'
+
+  workflow_dispatch: {}   # permette anche di lanciarlo manualmente da GitHub
+
+jobs:
+  check-traffic:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run traffic check
+        env:
+          TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
+        run: python check_traffic.py
+
+      - name: Commit and push updated CSV
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Aggiorna log traffico"
+          file_pattern: data/traffic_log.csv
